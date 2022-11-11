@@ -1,0 +1,11 @@
+
+
+
+# Ignore the following folders
+data/human_proteome
+data/model_cif
+
+# Ignore the following files
+
+*.tar
+*.out
