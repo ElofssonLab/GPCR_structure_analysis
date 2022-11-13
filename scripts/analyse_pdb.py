@@ -40,6 +40,44 @@ def contains_sequence(pdb_structure, sequence_1letter):
 
 
 
+def compute_aligned_sequence(pdb_chain, subsequence: str):
+    """Align input subsequence to chain sequence.
+
+        Args:
+        pdb_chain: biopython chain structure
+        subsequence: a 1letter protein sequence
+
+        Returns:
+            Returns a subsequence of the pdb_chain, aligned to the input subsequence.
+    """
+    model_residues = unfold_entities(pdb_chain, 'R')
+
+    model_sequence = ''.join([d3to1[residue.resname] for residue in model_residues])
+
+    alignments = pairwise2.align.localms(model_sequence, subsequence, 2, -1, -1, -1)
+    # Identical characters are given 2 points, 1 point is deducted for each non-identical character.
+    # 10 points are deducted when opening a gap, and 2 points are deducted when extending it
+    
+    alignment = alignments[0]
+
+
+    alignment_normalized_score = round(alignment[2]/len(subsequence),2)
+
+    start_pos = alignment[3]
+    end_pos = alignment[4]
+    aligned_model_sequence = alignment[0][start_pos:end_pos]
+    #aligned_subsequence = alignment[1][start_pos:end_pos]
+
+    return aligned_model_sequence, alignment_normalized_score
+
+
+def compute_average_plDDT(pdb_chain, subsequence):
+
+
+    average_plDDT_score = None
+    return average_plDDT_score
+
+
 def main():
 
     pdbp = PDBParser(QUIET=True)
@@ -57,13 +95,25 @@ def main():
         antigen_sequence = getattr(row, "Antigen_Sequence")
         uniprot_id = getattr(row, "Uniprot_ID")
         pdb_file = pdb_models + "/AF-{}-F1-model_v4.pdb".format(uniprot_id)
-        contains_agseq = contains_sequence(pdbp.get_structure("", pdb_file), antigen_sequence)
+        pdb_structure = pdbp.get_structure("", pdb_file)
+        model_chain = pdb_structure[0]["A"]
+
+        
+        contains_agseq = contains_sequence(pdb_structure, antigen_sequence)
         if contains_agseq:
             p += 1
         else: 
             n +=1
-        print("Uniprot: {}, Contains: {}".format(uniprot_id,contains_agseq))
+        #print("Uniprot: {}, Contains: {}".format(uniprot_id,contains_agseq))
+        if not contains_agseq:
+            print(uniprot_id)
+            print(antigen_sequence)
+            print(compute_aligned_sequence(pdb_structure, antigen_sequence))
+        
+
     print("Positive: {}/{}".format(p,n+p))
 
+
+    
 if __name__ == '__main__':
     main()

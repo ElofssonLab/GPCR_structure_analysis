@@ -29,3 +29,4 @@ create list of all uniprot_ids: ```cat data.csv | cut -d ',' -f4 | sed '1d' | se
 ## TODO list
 
 + Download experimental pdb structures (97 available)
++ calculate alignment, get start and end residue number to define a region
