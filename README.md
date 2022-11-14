@@ -39,3 +39,23 @@ create list of all uniprot_ids: ```cat data.csv | cut -d ',' -f4 | sed '1d' | se
 
 See below link for installation of dssp:
 https://ssbio.readthedocs.io/en/latest/instructions/dssp.html 
+
+
+
+
+# DSSP
+see https://biopython.org/docs/1.75/api/Bio.PDB.DSSP.html
+
+TODO short needs to be verified
+
+| Code | Short | Structure                    |
+|------|-------|------------------------------|
+| H    | H     | Alpha helix (3-12)           |
+| B    | E     | Isolated beta-bridge residue |
+| E    | E     | Strand                       |
+| G    | H     | 3-10 helix                   |
+| I    | H     | Pi helix                     |
+| T    | L     | Turn                         |
+| S    | L     | Bend                         |
+| -    | L     | None                         |
+

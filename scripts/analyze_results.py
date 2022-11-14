@@ -58,9 +58,16 @@ def main():
     abspath = abspath.split("GPCR_project")[0]+"GPCR_project"
 
     csv_file = abspath + "/analysis/data_results.csv"
-    df = pd.read_csv(csv_file,  sep=',', header=0)
+    df = pd.read_csv(csv_file, dtype="str", sep=',', header=0)
 
     outpath = abspath + "/analysis"
+
+    # prepare dataframe
+    df["relative_ASA_below_025"] = df["relative_ASA_below_025"].astype(float)
+    df["normalized_alignment_score"] = df["normalized_alignment_score"].astype(float)
+    df["average_plDDT_score"] = df["average_plDDT_score"].astype(float)
+    df["plDDT_below_025"] = df["plDDT_below_025"].astype(float)
+    df["Antigen_Length"] = df["Antigen_Length"].astype(float)
 
 
 
@@ -80,68 +87,37 @@ def main():
     # ignore all values with normalized_alignment_score < 0.90
     df = df[df["normalized_alignment_score"] >= 0.90]
 
-    # density
+
+    # disorderd score 
     ax = df.loc[:,["disordered_score"]].plot(kind="density")
-    df[df["On_target"] == True].loc[:,["disordered_score"]].plot(kind="density")
-    ax.set_xlabel('DockQscores')
+    df[df["On_target"] == "TRUE"].loc[:,["disordered_score"]].plot(kind="density", ax = ax,)
+    df[df["On_target"] == "FALSE"].loc[:,["disordered_score"]].plot(kind="density", ax = ax,)
+    ax.set_xlabel('disordered_score')
     ax.set_xlim([-0.25, 1.25])
+    ax.legend(["all", "On_target = TRUE", "On_target = FALSE"])
     #ax.set_ylim([0, 1.6])
-    plt.savefig(outpath+"/density.png")
+    plt.savefig(outpath+"/on_target_disordered.png")
 
-    """
-    # scatterplot combined
-    sns_plot=sns.scatterplot(data=df,x="DockQ_AF_0",y="DockQ_OMF_100X")
-    sns_plot=sns.scatterplot(data=df,x="DockQ_AF_0",y="DockQ_OMF_201G")
-    sns_plot.text(0.3,0.85,"Omega 201G: "+str(round(df["DockQ_OMF_201G"].mean(),3)))
-    sns_plot.text(0.3,0.8,"Omega 100X: "+str(round(df["DockQ_OMF_100X"].mean(),3)))
-    sns_plot.text(0.3,0.75,"AF-0: "+str(round(df["DockQ_AF_0"].mean(),3)))
-
-    sns_plot.set(ylim=(0, 1))
-    sns_plot.set(xlim=(0, 1))
-    plt.legend(loc='lower right')
-    plt.plot([0,1],[0,1])
-    plt.savefig(outpath+"/scatter.png")
-
-
-    # histogram
-    nberbins = 30
-    ax = df.plot.hist(column='DockQ_AF_0', color="b", bins=nberbins)
-    df.plot.hist(column='DockQ_OMF_100X',color="g", ax=ax,bins=nberbins,alpha=0.7)
-    df.plot.hist(column=['DockQ_OMF_201G'],color="r", ax=ax,bins=nberbins,alpha=0.7)
-    ax.set_xlabel('DockQscores')
-    ax.set_title('Histogram with %d bins' % nberbins)
-    plt.savefig(outpath+"/hist.png")
-
-    # density
-    ax = df.loc[:,["pdb","DockQ_AF_0"]].plot(kind="density")
-    ax.set_xlabel('DockQscores')
+    # disorderd score 
+    ax = df.loc[:,["disordered_score"]].plot(kind="density")
+    df[df["Off_target"] == "TRUE"].loc[:,["disordered_score"]].plot(kind="density", ax = ax)
+    df[df["Off_target"] == "FALSE"].loc[:,["disordered_score"]].plot(kind="density", ax = ax)
+    ax.set_xlabel('disordered_score')
     ax.set_xlim([-0.25, 1.25])
+    ax.legend(["all", "Off_target = TRUE", "Off_target = FALSE"])
     #ax.set_ylim([0, 1.6])
-    plt.savefig(outpath+"/density.png")
+    plt.savefig(outpath+"/off_target_disordered.png")
 
-    # scatterplot of DockQscores
-    ax = df.plot.scatter(x='pdb', y='DockQ_AF_0', color="b",xticks=[],marker="+")
-    df.plot.scatter(x='pdb', y='DockQ_AF_0_antibody',color="g", ax=ax,marker="x",alpha=0.7)
-    #df.plot.scatter(x=['pdb'], y=['DockQ_OMF_100X'],color="g", ax=ax,marker="x")
-    #df.plot.scatter(x=['pdb'], y=['DockQ_OMF_100X'],color="r", ax=ax,marker="-")
-    ax.set_ylabel('DockQscores')
-    plt.savefig(outpath+"/range.png")
+    # disorderd score 
+    ax = df.loc[:,["disordered_score"]].plot(kind="density")
+    df[df["Specific"] == "TRUE"].loc[:,["disordered_score"]].plot(kind="density", ax = ax)
+    df[df["Specific"] == "FALSE"].loc[:,["disordered_score"]].plot(kind="density", ax = ax)
+    ax.set_xlabel('disordered_score')
+    ax.set_xlim([-0.25, 1.25])
+    ax.legend(["all", "Specific = TRUE", "Specific = FALSE"])
+    #ax.set_ylim([0, 1.6])
+    plt.savefig(outpath+"/Specific_disordered.png")
 
-
-    # # 
-    # ax = df.plot.scatter(x='year', y='DockQ_AF_0', color="b",xticks=[],marker="+")
-    # #df.plot.scatter(x=['pdb'], y=['DockQ_OMF_100X'],color="g", ax=ax,marker="x")
-    # #df.plot.scatter(x=['pdb'], y=['DockQ_OMF_100X'],color="r", ax=ax,marker="-")
-    # ax.set_ylabel('DockQscores')
-    # plt.savefig(outpath+"/yearly.png")
-
-    # correlation
-    with open(logfile, "a") as logf:
-        logf.write("# Correlation\n")
-        s = df.corr(method='pearson').to_string()
-        logf.write(s)
-
-    """
 
 
 if __name__ == '__main__':

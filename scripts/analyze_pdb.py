@@ -26,11 +26,14 @@ d3to1 = {'ALA': 'A', 'ASX': 'B', 'CYS': 'C', 'ASP': 'D', 'GLU': 'E', \
         'VAL': 'V', 'TRP': 'W', 'UNK': 'X', 'TYR': 'Y', 'GLX': 'Z'}
 
 
-def perfect_match(pdb_chain, sequence_1letter):
-    """
+def perfect_match(pdb_chain, sequence_1letter: str):
+    """ 
         Args:
+            pdb_chain: biopython chain object
+            sequence_1letter: 1 letter amino acid
 
         Returns:
+            True if input sequence is part of input chain, Flase otherwise.
     
     """
     model_residues = unfold_entities(pdb_chain, 'R')
@@ -51,7 +54,8 @@ def compute_aligned_sequence(pdb_chain, subsequence: str):
 
         Returns:
             Returns a subsequence of the pdb_chain, aligned to the input subsequence as well \
-                 as a "normalized alignment score" (alignment score divided by length of subsequence)
+                 as a "normalized alignment score" (alignment score divided by length of subsequence) \
+                    measuring quality of the alignment (score 1 means subsequence matches part of the input chain)
     """
     model_residues = unfold_entities(pdb_chain, 'R')
 
@@ -97,11 +101,28 @@ def get_matched_residue_ids(pdb_chain, subsequence):
     return matched_residue_ids
 
 
-def compute_dssp(pdb_chain_id, subsequence):
 
-    return None
+def compute_relative_plDDT(pdb_chain, subsequence="", treshhold=0.25):
+    """
+        Args:
 
+        Returns:
     
+    """
+
+    if subsequence == "":
+        model_atoms = unfold_entities(pdb_chain, 'A')
+        b_factor_scores = [atom.get_bfactor() for atom in model_atoms]
+        relative_plDDT_score = sum([1 for score in b_factor_scores if score <= treshhold])/len(b_factor_scores)
+    else:
+        matched_ids = get_matched_residue_ids(pdb_chain, subsequence)
+        subsequence_match = [pdb_chain[residue_id] for residue_id in matched_ids]
+
+        b_factor_scores = [atom.get_bfactor() for residue in subsequence_match for atom in residue.get_atoms()]
+        relative_plDDT_score = sum([1 for score in b_factor_scores if score <= treshhold])/len(b_factor_scores)
+        
+    relative_plDDT_score = round(relative_plDDT_score,2)
+    return relative_plDDT_score
 
 def compute_average_plDDT(pdb_chain, subsequence=""):
     """
@@ -114,12 +135,12 @@ def compute_average_plDDT(pdb_chain, subsequence=""):
     if subsequence == "":
         model_atoms = unfold_entities(pdb_chain, 'A')
         b_factor_scores = [atom.get_bfactor() for atom in model_atoms]
-        average_plDDT_score = sum(b_factor_scores)/len(b_factor_scores)
+        average_plDDT_score = statistics.mean(b_factor_scores)
     else:
         matched_ids = get_matched_residue_ids(pdb_chain, subsequence)
         subsequence_match = [pdb_chain[residue_id] for residue_id in matched_ids]
-
-        average_plDDT_score = statistics.mean([atom.get_bfactor() for residue in subsequence_match for atom in residue.get_atoms()])
+        b_factor_scores = [atom.get_bfactor() for residue in subsequence_match for atom in residue.get_atoms()]
+        average_plDDT_score = statistics.mean(b_factor_scores)
         
     average_plDDT_score = round(average_plDDT_score,2)
     return average_plDDT_score
@@ -160,8 +181,9 @@ def main():
     data["matched_subsequence"] = np.nan
     data["normalized_alignment_score"] = np.nan
     data["average_plDDT_score"] = np.nan
+    data["plDDT_below_025"] = np.nan
     data["secondary_structure"] = np.nan
-    data["disordered_score"] = np.nan
+    data["relative_ASA_below_025"] = np.nan
 
 
 
@@ -180,9 +202,12 @@ def main():
         data.at[index,"matched_subsequence"] = matched_subsequence
         data.at[index,"normalized_alignment_score"] = normalized_alignment_score
         data.at[index,"average_plDDT_score"] = compute_average_plDDT(model_chain,matched_subsequence)
+        data.at[index,"plDDT_below_025"] = compute_relative_plDDT(model_chain,matched_subsequence,0.25)
 
 
         matched_residue_ids = get_matched_residue_ids(model_chain, compute_aligned_sequence(model_chain, antigen_sequence)[0])
+        
+        # see: https://biopython.org/docs/1.75/api/Bio.PDB.DSSP.html
         dssp = DSSP(pdb_structure[0], pdb_file, dssp='mkdssp')
 
         # analyse secondary structure
@@ -201,7 +226,7 @@ def main():
             residue_relative_ASA = dssp[key][3]
             if residue_relative_ASA >= treshold:
                 ASA_greater_treshold += 1
-        data.at[index,"disordered_score"] = round(ASA_greater_treshold/len(matched_residue_ids),2)
+        data.at[index,"relative_ASA_below_025"] = round(ASA_greater_treshold/len(matched_residue_ids),2)
 
 
     # save output 
