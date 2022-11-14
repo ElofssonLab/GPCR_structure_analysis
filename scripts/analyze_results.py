@@ -81,8 +81,8 @@ def main():
     df = df[df["normalized_alignment_score"] >= 0.90]
 
     # density
-    ax = df.loc[:,["Test_ID","disordered_score"]].plot(kind="density")
-    #df.loc[:,["pdb","DockQ_AF_0"]].plot(kind="density")
+    ax = df.loc[:,["disordered_score"]].plot(kind="density")
+    df[df["On_target"] == True].loc[:,["disordered_score"]].plot(kind="density")
     ax.set_xlabel('DockQscores')
     ax.set_xlim([-0.25, 1.25])
     #ax.set_ylim([0, 1.6])
