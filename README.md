@@ -29,10 +29,6 @@ create list of all uniprot_ids: ```cat data.csv | cut -d ',' -f4 | sed '1d' | se
 ## TODO list
 
 + Download experimental pdb structures (97 available)
-+ calculate alignment, get start and end residue number to define a region
-
-
-
 
 
 # Notes
@@ -44,18 +40,16 @@ https://ssbio.readthedocs.io/en/latest/instructions/dssp.html
 
 
 # DSSP
-see https://biopython.org/docs/1.75/api/Bio.PDB.DSSP.html
++ see also https://biopython.org/docs/1.75/api/Bio.PDB.DSSP.html
++ we choose accessible surface area (ASA) values according to Wilke; Tien et al. 2013 https://doi.org/10.1371/journal.pone.0080635
 
-TODO short needs to be verified
-
-| Code | Short | Structure                    |
-|------|-------|------------------------------|
-| H    | H     | Alpha helix (3-12)           |
-| B    | E     | Isolated beta-bridge residue |
-| E    | E     | Strand                       |
-| G    | H     | 3-10 helix                   |
-| I    | H     | Pi helix                     |
-| T    | L     | Turn                         |
-| S    | L     | Bend                         |
-| -    | L     | None                         |
-
+| 8-letter character | 3-state character | Structure                    |
+|--------------------|-------------------|------------------------------|
+| H                  | H                 | Alpha helix (3-12)           |
+| B                  | E                 | Isolated beta-bridge residue |
+| E                  | E                 | Strand                       |
+| G                  | H                 | 3-10 helix                   |
+| I                  | H                 | Pi helix                     |
+| T                  | C                 | Turn                         |
+| S                  | C                 | Bend                         |
+| -                  | C                 | None                         |

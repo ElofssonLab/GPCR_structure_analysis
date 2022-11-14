@@ -16,6 +16,7 @@ import numpy as np
 import statistics
 from Bio.PDB.DSSP import DSSP
 
+
 import os
 
 # SOURCE:   https://proteopedia.org/wiki/index.php/Amino_Acids
@@ -24,6 +25,10 @@ d3to1 = {'ALA': 'A', 'ASX': 'B', 'CYS': 'C', 'ASP': 'D', 'GLU': 'E', \
         'LEU': 'L', 'MET': 'M', 'ASN': 'N', 'PYL': 'O', 'PRO': 'P', \
         'GLN': 'Q', 'ARG': 'R', 'SER': 'S', 'THR': 'T', 'SEC': 'U', \
         'VAL': 'V', 'TRP': 'W', 'UNK': 'X', 'TYR': 'Y', 'GLX': 'Z'}
+
+# SS-Scheme 1: H,G,I->H ; E,B->E ; -,T,S->C
+dssp8to3 = {'H': 'H', 'G': 'H', 'I': 'H', 'E': 'E', 'B': 'E', \
+        'T': 'C', 'S': 'C', '-': 'C'}
 
 
 def perfect_match(pdb_chain, sequence_1letter: str):
@@ -102,7 +107,7 @@ def get_matched_residue_ids(pdb_chain, subsequence):
 
 
 
-def compute_relative_plDDT(pdb_chain, subsequence="", treshhold=0.25):
+def compute_relative_plDDT(pdb_chain, subsequence="", threshold=0.25):
     """
         Args:
 
@@ -113,13 +118,13 @@ def compute_relative_plDDT(pdb_chain, subsequence="", treshhold=0.25):
     if subsequence == "":
         model_atoms = unfold_entities(pdb_chain, 'A')
         b_factor_scores = [atom.get_bfactor() for atom in model_atoms]
-        relative_plDDT_score = sum([1 for score in b_factor_scores if score <= treshhold])/len(b_factor_scores)
+        relative_plDDT_score = sum([1 for score in b_factor_scores if score <= threshold])/len(b_factor_scores)
     else:
         matched_ids = get_matched_residue_ids(pdb_chain, subsequence)
         subsequence_match = [pdb_chain[residue_id] for residue_id in matched_ids]
 
         b_factor_scores = [atom.get_bfactor() for residue in subsequence_match for atom in residue.get_atoms()]
-        relative_plDDT_score = sum([1 for score in b_factor_scores if score <= treshhold])/len(b_factor_scores)
+        relative_plDDT_score = sum([1 for score in b_factor_scores if score <= threshold])/len(b_factor_scores)
         
     relative_plDDT_score = round(relative_plDDT_score,2)
     return relative_plDDT_score
@@ -167,6 +172,7 @@ def compute_average_plDDT(pdb_chain, subsequence=""):
 
 def main():
 
+
     pdbp = PDBParser(QUIET=True)
 
     abspath = os.getcwd()
@@ -183,8 +189,11 @@ def main():
     data["average_plDDT_score"] = np.nan
     data["plDDT_below_025"] = np.nan
     data["secondary_structure"] = np.nan
+    data["average_relative_ASA"] = np.nan
     data["relative_ASA_below_025"] = np.nan
-
+    data["relative_H-dssp"] = np.nan
+    data["relative_E-dssp"] = np.nan
+    data["relative_C-dssp"] = np.nan
 
 
     for row in data.itertuples():
@@ -208,27 +217,25 @@ def main():
         matched_residue_ids = get_matched_residue_ids(model_chain, compute_aligned_sequence(model_chain, antigen_sequence)[0])
         
         # see: https://biopython.org/docs/1.75/api/Bio.PDB.DSSP.html
-        dssp = DSSP(pdb_structure[0], pdb_file, dssp='mkdssp')
+        dssp = DSSP(pdb_structure[0], pdb_file, dssp='mkdssp', acc_array='Wilke')
+        #dssp = DSSP(pdb_structure[0], pdb_file, dssp='mkdssp', acc_array='Sander')
 
         # analyse secondary structure
-        secondary_structure = ""
-        for residue_id in matched_residue_ids:
-            key = (model_chain.get_id(), residue_id)
-            residue_secondary_structure = dssp[key][2]
-            secondary_structure += residue_secondary_structure
-        data.at[index,"secondary_structure"] = secondary_structure
+        secondary_structure_3letter = ''.join([dssp8to3[dssp[(model_chain.get_id(), residue_id)][2]] for residue_id in matched_residue_ids])
+        data.at[index, "secondary_structure"] = secondary_structure_3letter
+
+        data.at[index, "relative_H-dssp"] = round(secondary_structure_3letter.count("H")/len(secondary_structure_3letter),2)
+        data.at[index, "relative_E-dssp"] = round(secondary_structure_3letter.count("E")/len(secondary_structure_3letter),2)
+        data.at[index, "relative_C-dssp"] = round(secondary_structure_3letter.count("C")/len(secondary_structure_3letter),2)
 
         # analyse relative ASA
-        treshold = 0.25
-        ASA_greater_treshold = 0
-        for residue_id in matched_residue_ids:
-            key = (model_chain.get_id(), residue_id)
-            residue_relative_ASA = dssp[key][3]
-            if residue_relative_ASA >= treshold:
-                ASA_greater_treshold += 1
-        data.at[index,"relative_ASA_below_025"] = round(ASA_greater_treshold/len(matched_residue_ids),2)
+        data.at[index,"average_relative_ASA"] = round(statistics.mean([dssp[(model_chain.get_id(), residue_id)][3] for residue_id in matched_residue_ids]),2)
+        threshold = 0.25
+        data.at[index,"relative_ASA_below_025"] = round(sum([1 for residue_id in matched_residue_ids if dssp[(model_chain.get_id(), residue_id)][3] <= threshold])/len(matched_residue_ids),3)
+        
 
 
+  
     # save output 
     data.to_csv(csv_out, index = False, sep=',', header=True, na_rep='NA')
 
