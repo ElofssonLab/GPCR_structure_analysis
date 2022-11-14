@@ -28,11 +28,14 @@ def main():
     prot_seq1 = "MVLEVSDHQVLNDAEVAALLENFSSSYDYGENESDSCCTSPPCPQDFSLNFDRAFLPALYSLLFLLGLLGNGAVAAVLLSRRTALSSTDTFLLHLAVADTLLVLTLPLWAVDAAVQWVFGSGLCKVAGALFNINFYAGALLLACISFDRYLNIVHATQLYRRGPPARVTLTCLAVWGLCLLFALPDFIFLSAHHDERLNATHCQYNFPQVGRTALRVLQLVAGFLLPLLVMAYCYAHILAVLLVSRGQRRLRAMRLVVVVVVAFALCWTPYHLVVLVDILMDLGALARNCGRESRVDVAKSVTSGLGYMHCCLNPLLYAFVGVKFRERMWMLLLRLGCPNQRGLQRQPSSSRRDSSWSETSEASYSGL"
     ag_seq1 = "QVSDHQVLNDAEVAALLENFSSSYDYGENESDSCCTSPPCPQDFSLNFDRAF"
 
+    prot_seq4 = "MVLEVSDHQVLNDAEVAALLENFSSSYDYGENESDSCCTSPPCPQDFSLNFDRAFLPALYSLLFLLGLLGNGAVAAVLLSRRTALSSTDTFLLHLAVADTLLVLTLPLWAVDAAVQWVFGSGLCKVAGALFNINFYAGALLLACISFDRYLNIVHATQLYRRGPPARVTLTCLAVWGLCLLFALPDFIFLSAHHDERLNATHCQYNFPQVGRTALRVLQLVAGFLLPLLVMAYCYAHILAVLLVSRGQRRLRAMRLVVVVVVAFALCWTPYHLVVLVDILMDLGALARNCGRESRVDVAKSVTSGLGYMHCCLNPLLYAFVGVKFRERMWMLLLRLGCPNQRGLQRQPSSSRRDSSWSETSEASYSGL"
+    ag_seq4 = "QVSDHQVLNDAEVAALLENFSSYDYGENESDSCCTSPPCPQDFSLNFDRAF" # not real example, deleted one S
+
     #align=pairwise2.align.localms(prot_seq, ag_seq, 2, -1, -10, -2)
     # Identical characters are given 2 points, 1 point is deducted for each non-identical character.
     # 10 points are deducted when opening a gap, and 2 points are deducted when extending it
 
-    model_sequence, subsequence = prot_seq3, ag_seq3
+    model_sequence, subsequence = prot_seq4, ag_seq4
     alignments = pairwise2.align.localms(model_sequence, subsequence, 2, -1, -1, -1)
     # Identical characters are given 2 points, 1 point is deducted for each non-identical character.
     # 10 points are deducted when opening a gap, and 2 points are deducted when extending it
@@ -47,10 +50,11 @@ def main():
     aligned_subsequence = alignment[1][start_pos:end_pos]
 
     print(pairwise2.format_alignment(*alignment))
+    print(alignment)
     score = alignment[2]/len(subsequence)
     print(score)
     #print(aligned_subsequence)
-    #print(aligned_model_sequence)
+    print(aligned_model_sequence)
  
 
 
