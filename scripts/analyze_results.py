@@ -58,11 +58,14 @@ def main():
     abspath = abspath.split("GPCR_project")[0]+"GPCR_project"
 
     csv_file = abspath + "/analysis/data_results.csv"
-    df = pd.read_csv(csv_file, dtype="str", sep=',', header=0)
+    df = pd.read_csv(csv_file,  sep=',', header=0)
 
     outpath = abspath + "/analysis"
 
-    logfile = outpath + "/metrics.md"
+
+
+
+    logfile = outpath + "/info.md"
     with open(logfile, "w") as logf:
         logf.write("### Metrics\n")
     
@@ -70,44 +73,22 @@ def main():
     # check number available entries
     with open(logfile, "a") as logf:
         logf.write("# Datapoints\n")
-        logf.write("DockQ_AF_0 values: {}/{}".format(df['DockQ_AF_0'].notna().sum(),df.shape[0]))
-        logf.write("\n")
-        logf.write("DockQ_OMF_100X values: {}/{}".format(df['DockQ_OMF_100X'].notna().sum(),df.shape[0]))
-        logf.write("\n")
-        logf.write("DockQ_OMF_201G values: {}/{}".format(df['DockQ_OMF_201G'].notna().sum(),df.shape[0]))
+        logf.write("Alignment score greater or equal 0.90: {}/{}".format(df[df['normalized_alignment_score'] > 0.90].shape[0],df.shape[0]))
         logf.write("\n")
 
+    # CUTOFF 
+    # ignore all values with normalized_alignment_score < 0.90
+    df = df[df["normalized_alignment_score"] >= 0.90]
 
-    # replace NaN values with 0
-    df['DockQ_AF_0'] = df['DockQ_AF_0'].fillna(0)
-    df['DockQ_OMF_100X'] = df['DockQ_OMF_100X'].fillna(0)
-    df['DockQ_OMF_201G'] = df['DockQ_OMF_201G'].fillna(0)
-    df['DockQ_AF_0_antibody'] = df['DockQ_AF_0_antibody'].fillna(0)
+    # density
+    ax = df.loc[:,["Test_ID","disordered_score"]].plot(kind="density")
+    #df.loc[:,["pdb","DockQ_AF_0"]].plot(kind="density")
+    ax.set_xlabel('DockQscores')
+    ax.set_xlim([-0.25, 1.25])
+    #ax.set_ylim([0, 1.6])
+    plt.savefig(outpath+"/density.png")
 
-    # turn values into float
-    df['DockQ_AF_0'] = df['DockQ_AF_0'].astype(float)
-    df['DockQ_OMF_100X'] = df['DockQ_OMF_100X'].astype(float)
-    df['DockQ_OMF_201G'] = df['DockQ_OMF_201G'].astype(float)
-    df['DockQ_AF_0_antibody'] = df['DockQ_AF_0_antibody'].astype(float)
-    #df["year"] = df["date"].apply(lambda x: float(x.split("/")[-1]))
-
-
-    # statistics
-    with open(logfile, "a") as logf:
-        logf.write("# Statistics\n")
-
-    s = df['DockQ_AF_0'][df['DockQ_AF_0'] > 0]
-    write_metrics(logfile,s,label="DockQ_AF_0")
-
-    s = df['DockQ_AF_0_antibody'][df['DockQ_AF_0_antibody'] > 0]
-    write_metrics(logfile,s,label="DockQ_AF_0_antibody")
-
-    s = df['DockQ_OMF_100X'][df['DockQ_OMF_100X'] > 0]
-    write_metrics(logfile,s,label="DockQ_OMF_100X")
-
-    s = df['DockQ_OMF_201G'][df['DockQ_OMF_201G'] > 0]
-    write_metrics(logfile,s,label="DockQ_OMF_201G")
-
+    """
     # scatterplot combined
     sns_plot=sns.scatterplot(data=df,x="DockQ_AF_0",y="DockQ_OMF_100X")
     sns_plot=sns.scatterplot(data=df,x="DockQ_AF_0",y="DockQ_OMF_201G")
@@ -160,6 +141,7 @@ def main():
         s = df.corr(method='pearson').to_string()
         logf.write(s)
 
+    """
 
 
 if __name__ == '__main__':
