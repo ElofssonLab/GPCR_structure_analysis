@@ -107,7 +107,7 @@ def get_matched_residue_ids(pdb_chain, subsequence):
 
 
 
-def compute_relative_plDDT(pdb_chain, subsequence="", threshold=0.25):
+def compute_relative_plDDT(pdb_chain, subsequence="", threshold=0.5):
     """
         Args:
 
@@ -150,25 +150,6 @@ def compute_average_plDDT(pdb_chain, subsequence=""):
     average_plDDT_score = round(average_plDDT_score,2)
     return average_plDDT_score
 
-    """
-    else:
-        model_residues = unfold_entities(pdb_chain, 'R')
-        model_sequence = ''.join([d3to1[residue.resname] for residue in model_residues])
-
-        if model_sequence.count(subsequence) > 1:
-            sys.exit("WARNING: The subsequence appears more than once in the model sequence.")
-        if model_sequence.count(subsequence) == 0:
-            sys.exit("WARNING: The subsequence does not exist in the model sequence.")
-
-        start = model_sequence.index(subsequence)
-        end = start + len(subsequence)
-        subsequence_match = model_residues[start:end]
-
-
-        average_plDDT_score = statistics.mean([atom.get_bfactor() for residue in subsequence_match for atom in residue.get_atoms()])
-        return average_plDDT_score
-    """
-
 
 def main():
 
@@ -187,7 +168,7 @@ def main():
     data["matched_subsequence"] = np.nan
     data["normalized_alignment_score"] = np.nan
     data["average_plDDT_score"] = np.nan
-    data["plDDT_below_025"] = np.nan
+    data["plDDT_below_05"] = np.nan
     data["secondary_structure"] = np.nan
     data["average_relative_ASA"] = np.nan
     data["relative_ASA_below_025"] = np.nan
@@ -211,14 +192,14 @@ def main():
         data.at[index,"matched_subsequence"] = matched_subsequence
         data.at[index,"normalized_alignment_score"] = normalized_alignment_score
         data.at[index,"average_plDDT_score"] = compute_average_plDDT(model_chain,matched_subsequence)
-        data.at[index,"plDDT_below_025"] = compute_relative_plDDT(model_chain,matched_subsequence,0.25)
+        data.at[index,"plDDT_below_05"] = compute_relative_plDDT(model_chain,matched_subsequence,0.5)
 
 
         matched_residue_ids = get_matched_residue_ids(model_chain, compute_aligned_sequence(model_chain, antigen_sequence)[0])
         
         # see: https://biopython.org/docs/1.75/api/Bio.PDB.DSSP.html
-        dssp = DSSP(pdb_structure[0], pdb_file, dssp='mkdssp', acc_array='Wilke')
-        #dssp = DSSP(pdb_structure[0], pdb_file, dssp='mkdssp', acc_array='Sander')
+        #dssp = DSSP(pdb_structure[0], pdb_file, dssp='mkdssp', acc_array='Wilke')
+        dssp = DSSP(pdb_structure[0], pdb_file, dssp='mkdssp', acc_array='Sander')
 
         # analyse secondary structure
         secondary_structure_3letter = ''.join([dssp8to3[dssp[(model_chain.get_id(), residue_id)][2]] for residue_id in matched_residue_ids])

@@ -73,7 +73,7 @@ def main():
     df["average_plDDT_score"] = df["average_plDDT_score"].astype(float)
     df["average_plDDT_score"] = df["average_plDDT_score"]/df["average_plDDT_score"].max()
 
-    df["plDDT_below_025"] = df["plDDT_below_025"].astype(float)
+    df["plDDT_below_05"] = df["plDDT_below_05"].astype(float)
     df["average_relative_ASA"] = df["average_relative_ASA"].astype(float)
     df["relative_ASA_below_025"] = df["relative_ASA_below_025"].astype(float)
     df["relative_H-dssp"] = df["relative_H-dssp"].astype(float)
@@ -98,7 +98,7 @@ def main():
 
 
     value_columns = ['Antigen_Length',  \
-       'average_plDDT_score', \
+       'average_plDDT_score', 'plDDT_below_05', \
        'average_relative_ASA', 'relative_ASA_below_025', 'relative_H-dssp', \
        'relative_E-dssp', 'relative_C-dssp']
 
