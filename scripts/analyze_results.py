@@ -66,14 +66,16 @@ def main():
 
     # prepare dataframe
     df["Antigen_Length"] = df["Antigen_Length"].astype(float)
-    df["Antigen_Length"] = df["Antigen_Length"]/df["Antigen_Length"].max()
+    #df["Antigen_Length"] = df["Antigen_Length"]/df["Antigen_Length"].max()
 
     df["normalized_alignment_score"] = df["normalized_alignment_score"].astype(float)
 
     df["average_plDDT_score"] = df["average_plDDT_score"].astype(float)
-    df["average_plDDT_score"] = df["average_plDDT_score"]/df["average_plDDT_score"].max()
+    df["average_plDDT_score"] = df["average_plDDT_score"]/100 # normalize values: plDDT scores are between 0-100
 
-    df["plDDT_below_05"] = df["plDDT_below_05"].astype(float)
+    df["plDDT_below_50"] = df["plDDT_below_50"].astype(float)
+
+
     df["average_relative_ASA"] = df["average_relative_ASA"].astype(float)
     df["relative_ASA_below_025"] = df["relative_ASA_below_025"].astype(float)
     df["relative_H-dssp"] = df["relative_H-dssp"].astype(float)
@@ -97,8 +99,8 @@ def main():
     df = df[df["normalized_alignment_score"] >= 0.90]
 
 
-    value_columns = ['Antigen_Length',  \
-       'average_plDDT_score', 'plDDT_below_05', \
+    value_columns = [ \
+       'average_plDDT_score', 'plDDT_below_50',  \
        'average_relative_ASA', 'relative_ASA_below_025', 'relative_H-dssp', \
        'relative_E-dssp', 'relative_C-dssp']
 

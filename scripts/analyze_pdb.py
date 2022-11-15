@@ -107,7 +107,7 @@ def get_matched_residue_ids(pdb_chain, subsequence):
 
 
 
-def compute_relative_plDDT(pdb_chain, subsequence="", threshold=0.5):
+def compute_relative_plDDT(pdb_chain, subsequence="", threshold=50):
     """
         Args:
 
@@ -168,10 +168,10 @@ def main():
     data["matched_subsequence"] = np.nan
     data["normalized_alignment_score"] = np.nan
     data["average_plDDT_score"] = np.nan
-    data["plDDT_below_05"] = np.nan
-    data["secondary_structure"] = np.nan
+    data["plDDT_below_50"] = np.nan
     data["average_relative_ASA"] = np.nan
     data["relative_ASA_below_025"] = np.nan
+    data["secondary_structure"] = np.nan
     data["relative_H-dssp"] = np.nan
     data["relative_E-dssp"] = np.nan
     data["relative_C-dssp"] = np.nan
@@ -192,8 +192,8 @@ def main():
         data.at[index,"matched_subsequence"] = matched_subsequence
         data.at[index,"normalized_alignment_score"] = normalized_alignment_score
         data.at[index,"average_plDDT_score"] = compute_average_plDDT(model_chain,matched_subsequence)
-        data.at[index,"plDDT_below_05"] = compute_relative_plDDT(model_chain,matched_subsequence,0.5)
-
+        data.at[index,"plDDT_below_50"] = compute_relative_plDDT(model_chain,matched_subsequence,50)
+        
 
         matched_residue_ids = get_matched_residue_ids(model_chain, compute_aligned_sequence(model_chain, antigen_sequence)[0])
         
