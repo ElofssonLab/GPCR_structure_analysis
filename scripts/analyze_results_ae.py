@@ -1,9 +1,10 @@
-
+#!/usr/bin/env python3
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import scipy.stats as stats
 
 import seaborn as sns
 
@@ -106,7 +107,13 @@ def main():
 
     # disorderd score 
     #plt.style.use('seaborn-deep')
+
+
     for value in value_columns:
+        print ("T-test on-off: ",value,stats.ttest_ind(df[ df.On_target=="TRUE"].loc[:,[value]],df[(df.On_target=="TRUE") &  (df.Off_target=="FALSE")].loc[:,[value]]))
+        print ("T-test on-no: ",value,stats.ttest_ind(df[(df.On_target=="TRUE") &  (df.Off_target=="FALSE")].loc[:,[value]],df[(df.On_target=="FALSE") & (df.Off_target=="FALSE") ].loc[:,[value]]))
+        print ("T-test on- the rest: ",value,stats.ttest_ind(df[(df.On_target=="TRUE") &  (df.Off_target=="FALSE")].loc[:,[value]],df[(df.On_target=="FALSE") |  (df.Off_target=="TRUE")].loc[:,[value]]))
+
         #for type in ["Specific", "On_target", "Off_target"]:
         #ax = df.loc[:,[value]].plot(kind="density", color="blue")
         ax=df[(df.On_target=="TRUE") &  (df.Off_target=="FALSE")].loc[:,[value]].plot(kind="density", color="green",legend="on_target")
@@ -121,7 +128,7 @@ def main():
         ax.set_xlim([-0.25, 1.25])
         #ax.legend()
         ax.legend(["On target","Off target","No target"])
-        plt.savefig(outpath + "/" + "all" +"_"+value+".png")
+        plt.savefig(outpath + "/" + "all" +"_"+value+".pdf")
 
 
 
