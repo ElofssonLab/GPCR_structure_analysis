@@ -109,8 +109,8 @@ def main():
     for value in value_columns:
         for type in ["Specific", "On_target", "Off_target"]:
             ax = df.loc[:,[value]].plot(kind="density", color="blue")
-            df[df[type] == "TRUE"].loc[:,[value]].plot(kind="density", ax = ax, color="red")
-            df[df[type] == "FALSE"].loc[:,[value]].plot(kind="density", ax = ax, color="green")
+            df[df[type] == "TRUE"].loc[:,[value]].plot(kind="density", ax = ax, color="green")
+            df[df[type] == "FALSE"].loc[:,[value]].plot(kind="density", ax = ax, color="red")
             ax.set_title("TRUE/FALSE: {}/{}".format(df[df[type] == "TRUE"].shape[0], df[df[type] == "FALSE"].shape[0]))
             #ax.text(0.8,0.80, "FALSE: {}".format(df[df[type] == "FALSE"].shape[0]))
             #ax.text(0.8,0.60, "TRUE: {}".format(df[df[type] == "TRUE"].shape[0]))
