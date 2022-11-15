@@ -1,10 +1,5 @@
 # GPCR_project
 
-## QUESTIONS
-
-Some entries have experimental structures
-
-
 ## METHODS - single structure with single protein as antigen
 
 1) we replace the entry 
@@ -45,21 +40,3 @@ to ensure that we have a unique uniprot id in every row.
 | T                  | C                 | Turn                         |
 | S                  | C                 | Bend                         |
 | -                  | C                 | None                         |
-
-## CMDs
-
-create list of all uniprot_ids: ```cat data.csv | cut -d ',' -f4 | sed '1d' | sed 's/;/\n/g' | sort | uniq > uniprot_ids.txt```
-
-## TODO list
-
-+ Download experimental pdb structures (97 available)
-
-
-# Notes
-
-See below link for installation of dssp:
-https://ssbio.readthedocs.io/en/latest/instructions/dssp.html 
-
-
-
-

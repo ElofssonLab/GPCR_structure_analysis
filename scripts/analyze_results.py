@@ -62,14 +62,23 @@ def main():
 
     outpath = abspath + "/analysis"
 
+
+
     # prepare dataframe
-    df["relative_ASA_below_025"] = df["relative_ASA_below_025"].astype(float)
-    df["normalized_alignment_score"] = df["normalized_alignment_score"].astype(float)
-    df["average_plDDT_score"] = df["average_plDDT_score"].astype(float)
-    df["plDDT_below_025"] = df["plDDT_below_025"].astype(float)
     df["Antigen_Length"] = df["Antigen_Length"].astype(float)
+    df["Antigen_Length"] = df["Antigen_Length"]/df["Antigen_Length"].max()
 
+    df["normalized_alignment_score"] = df["normalized_alignment_score"].astype(float)
 
+    df["average_plDDT_score"] = df["average_plDDT_score"].astype(float)
+    df["average_plDDT_score"] = df["average_plDDT_score"]/df["average_plDDT_score"].max()
+
+    df["plDDT_below_025"] = df["plDDT_below_025"].astype(float)
+    df["average_relative_ASA"] = df["average_relative_ASA"].astype(float)
+    df["relative_ASA_below_025"] = df["relative_ASA_below_025"].astype(float)
+    df["relative_H-dssp"] = df["relative_H-dssp"].astype(float)
+    df["relative_E-dssp"] = df["relative_E-dssp"].astype(float)
+    df["relative_C-dssp"] = df["relative_C-dssp"].astype(float)
 
 
     logfile = outpath + "/info.md"
@@ -88,36 +97,62 @@ def main():
     df = df[df["normalized_alignment_score"] >= 0.90]
 
 
+    value_columns = ['Antigen_Length',  \
+       'average_plDDT_score', \
+       'average_relative_ASA', 'relative_ASA_below_025', 'relative_H-dssp', \
+       'relative_E-dssp', 'relative_C-dssp']
+
     # disorderd score 
-    ax = df.loc[:,["disordered_score"]].plot(kind="density")
-    df[df["On_target"] == "TRUE"].loc[:,["disordered_score"]].plot(kind="density", ax = ax,)
-    df[df["On_target"] == "FALSE"].loc[:,["disordered_score"]].plot(kind="density", ax = ax,)
-    ax.set_xlabel('disordered_score')
+    #plt.style.use('seaborn-deep')
+    for value in value_columns:
+        for type in ["Specific", "On_target", "Off_target"]:
+            ax = df.loc[:,[value]].plot(kind="density", color="blue")
+            df[df[type] == "TRUE"].loc[:,[value]].plot(kind="density", ax = ax, color="red")
+            df[df[type] == "FALSE"].loc[:,[value]].plot(kind="density", ax = ax, color="green")
+            ax.set_title("TRUE/FALSE: {}/{}".format(df[df[type] == "TRUE"].shape[0], df[df[type] == "FALSE"].shape[0]))
+            #ax.text(0.8,0.80, "FALSE: {}".format(df[df[type] == "FALSE"].shape[0]))
+            #ax.text(0.8,0.60, "TRUE: {}".format(df[df[type] == "TRUE"].shape[0]))
+            ax.set_xlabel(value)
+            ax.set_xlim([-0.25, 1.25])
+            ax.legend(["all", type + " = TRUE", type + " = FALSE"])
+            plt.savefig(outpath + "/" + type +"_"+value+".png")
+
+
+
+    """
+    # 
+    ax = df.loc[:,["relative_ASA_below_025"]].plot(kind="density")
+    df[df["On_target"] == "TRUE"].loc[:,["relative_ASA_below_025"]].plot(kind="density", ax = ax)
+    df[df["On_target"] == "FALSE"].loc[:,["relative_ASA_below_025"]].plot(kind="density", ax = ax)
+    ax.text(0.8,0.80, "FALSE: {}".format(df[df["On_target"] == "FALSE"].shape[0]))
+    ax.text(0.8,0.60, "TRUE: {}".format(df[df["On_target"] == "TRUE"].shape[0]))
+    #ax.text(0.3,0.75, "on target (FALSE/TRUE/TOTAL): {}/{}/{}".format(df[df["On_target"] == "FALSE"].shape[0], df[df["On_target"] == "TRUE"].shape[0], df.shape[0]))
+    ax.set_xlabel('relative_ASA_below_025')
     ax.set_xlim([-0.25, 1.25])
     ax.legend(["all", "On_target = TRUE", "On_target = FALSE"])
     #ax.set_ylim([0, 1.6])
-    plt.savefig(outpath+"/on_target_disordered.png")
+    plt.savefig(outpath+"/on_target_relative_ASA_below_025.png")
 
     # disorderd score 
-    ax = df.loc[:,["disordered_score"]].plot(kind="density")
-    df[df["Off_target"] == "TRUE"].loc[:,["disordered_score"]].plot(kind="density", ax = ax)
-    df[df["Off_target"] == "FALSE"].loc[:,["disordered_score"]].plot(kind="density", ax = ax)
-    ax.set_xlabel('disordered_score')
+    ax = df.loc[:,["relative_ASA_below_025"]].plot(kind="density")
+    df[df["Off_target"] == "TRUE"].loc[:,["relative_ASA_below_025"]].plot(kind="density", ax = ax)
+    df[df["Off_target"] == "FALSE"].loc[:,["relative_ASA_below_025"]].plot(kind="density", ax = ax)
+    ax.set_xlabel('relative_ASA_below_025')
     ax.set_xlim([-0.25, 1.25])
     ax.legend(["all", "Off_target = TRUE", "Off_target = FALSE"])
     #ax.set_ylim([0, 1.6])
-    plt.savefig(outpath+"/off_target_disordered.png")
+    plt.savefig(outpath+"/off_target_relative_ASA_below_025.png")
 
     # disorderd score 
-    ax = df.loc[:,["disordered_score"]].plot(kind="density")
-    df[df["Specific"] == "TRUE"].loc[:,["disordered_score"]].plot(kind="density", ax = ax)
-    df[df["Specific"] == "FALSE"].loc[:,["disordered_score"]].plot(kind="density", ax = ax)
-    ax.set_xlabel('disordered_score')
+    ax = df.loc[:,["relative_ASA_below_025"]].plot(kind="density")
+    df[df["Specific"] == "TRUE"].loc[:,["relative_ASA_below_025"]].plot(kind="density", ax = ax)
+    df[df["Specific"] == "FALSE"].loc[:,["relative_ASA_below_025"]].plot(kind="density", ax = ax)
+    ax.set_xlabel('relative_ASA_below_025')
     ax.set_xlim([-0.25, 1.25])
     ax.legend(["all", "Specific = TRUE", "Specific = FALSE"])
     #ax.set_ylim([0, 1.6])
-    plt.savefig(outpath+"/Specific_disordered.png")
-
+    plt.savefig(outpath+"/Specific_relative_ASA_below_025.png")
+    """
 
 
 if __name__ == '__main__':
