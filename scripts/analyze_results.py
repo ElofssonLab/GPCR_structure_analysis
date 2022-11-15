@@ -104,57 +104,51 @@ def main():
        'average_relative_ASA', 'relative_ASA_below_025', 'relative_H-dssp', \
        'relative_E-dssp', 'relative_C-dssp']
 
-    # disorderd score 
-    #plt.style.use('seaborn-deep')
-    for value in value_columns:
-        for type in ["Specific", "On_target", "Off_target"]:
-            ax = df.loc[:,[value]].plot(kind="density", color="blue")
-            df[df[type] == "TRUE"].loc[:,[value]].plot(kind="density", ax = ax, color="green")
-            df[df[type] == "FALSE"].loc[:,[value]].plot(kind="density", ax = ax, color="red")
-            ax.set_title("TRUE/FALSE: {}/{}".format(df[df[type] == "TRUE"].shape[0], df[df[type] == "FALSE"].shape[0]))
-            #ax.text(0.8,0.80, "FALSE: {}".format(df[df[type] == "FALSE"].shape[0]))
-            #ax.text(0.8,0.60, "TRUE: {}".format(df[df[type] == "TRUE"].shape[0]))
-            ax.set_xlabel(value)
-            ax.set_xlim([-0.25, 1.25])
-            ax.legend(["all", type + " = TRUE", type + " = FALSE"])
-            plt.savefig(outpath + "/" + type +"_"+value+".png")
+    
+    if True:
+        for value in value_columns:
+            for type in ["Specific", "On_target", "Off_target"]:
+                ax = df.loc[:,[value]].plot(kind="density", color="blue")
+                df[df[type] == "TRUE"].loc[:,[value]].plot(kind="density", ax = ax, color="green")
+                df[df[type] == "FALSE"].loc[:,[value]].plot(kind="density", ax = ax, color="red")
+                ax.set_title("TRUE/FALSE: {}/{}".format(df[df[type] == "TRUE"].shape[0], df[df[type] == "FALSE"].shape[0]))
+                #ax.text(0.8,0.80, "FALSE: {}".format(df[df[type] == "FALSE"].shape[0]))
+                #ax.text(0.8,0.60, "TRUE: {}".format(df[df[type] == "TRUE"].shape[0]))
+                ax.set_xlabel(value)
+                ax.set_xlim([-0.25, 1.25])
+                ax.legend(["all", type + " = TRUE", type + " = FALSE"])
+                plt.savefig(outpath + "/" + type +"_"+value+".png")
 
 
 
-    """
-    # 
-    ax = df.loc[:,["relative_ASA_below_025"]].plot(kind="density")
-    df[df["On_target"] == "TRUE"].loc[:,["relative_ASA_below_025"]].plot(kind="density", ax = ax)
-    df[df["On_target"] == "FALSE"].loc[:,["relative_ASA_below_025"]].plot(kind="density", ax = ax)
-    ax.text(0.8,0.80, "FALSE: {}".format(df[df["On_target"] == "FALSE"].shape[0]))
-    ax.text(0.8,0.60, "TRUE: {}".format(df[df["On_target"] == "TRUE"].shape[0]))
-    #ax.text(0.3,0.75, "on target (FALSE/TRUE/TOTAL): {}/{}/{}".format(df[df["On_target"] == "FALSE"].shape[0], df[df["On_target"] == "TRUE"].shape[0], df.shape[0]))
-    ax.set_xlabel('relative_ASA_below_025')
-    ax.set_xlim([-0.25, 1.25])
-    ax.legend(["all", "On_target = TRUE", "On_target = FALSE"])
-    #ax.set_ylim([0, 1.6])
-    plt.savefig(outpath+"/on_target_relative_ASA_below_025.png")
+     # use histograms
+    if False:
+        # relative_ASA_below_025
+        all = df['relative_ASA_below_025'].to_numpy()
+        only_TRUE = df[df["On_target"] == "TRUE"]['relative_ASA_below_025'].to_numpy()
+        only_FALSE = df[df["On_target"] == "FALSE"]['relative_ASA_below_025'].to_numpy()
 
-    # disorderd score 
-    ax = df.loc[:,["relative_ASA_below_025"]].plot(kind="density")
-    df[df["Off_target"] == "TRUE"].loc[:,["relative_ASA_below_025"]].plot(kind="density", ax = ax)
-    df[df["Off_target"] == "FALSE"].loc[:,["relative_ASA_below_025"]].plot(kind="density", ax = ax)
-    ax.set_xlabel('relative_ASA_below_025')
-    ax.set_xlim([-0.25, 1.25])
-    ax.legend(["all", "Off_target = TRUE", "Off_target = FALSE"])
-    #ax.set_ylim([0, 1.6])
-    plt.savefig(outpath+"/off_target_relative_ASA_below_025.png")
+        num_bins = 5
 
-    # disorderd score 
-    ax = df.loc[:,["relative_ASA_below_025"]].plot(kind="density")
-    df[df["Specific"] == "TRUE"].loc[:,["relative_ASA_below_025"]].plot(kind="density", ax = ax)
-    df[df["Specific"] == "FALSE"].loc[:,["relative_ASA_below_025"]].plot(kind="density", ax = ax)
-    ax.set_xlabel('relative_ASA_below_025')
-    ax.set_xlim([-0.25, 1.25])
-    ax.legend(["all", "Specific = TRUE", "Specific = FALSE"])
-    #ax.set_ylim([0, 1.6])
-    plt.savefig(outpath+"/Specific_relative_ASA_below_025.png")
-    """
+        plt.hist([all, only_TRUE, only_FALSE], bins=num_bins, label=['all', "On_target = TRUE", "On_target = FALSE"], color = ["blue","green","red"])
+        plt.legend(loc='upper right')
+        plt.xlim((0, 1))
+        plt.xlabel('relative_ASA_below_025')
+        plt.show()
+
+        # Antigen_Length
+        all = df['Antigen_Length'].to_numpy()
+        only_TRUE = df[df["On_target"] == "TRUE"]['Antigen_Length'].to_numpy()
+        only_FALSE = df[df["On_target"] == "FALSE"]['Antigen_Length'].to_numpy()
+
+        num_bins = 5
+
+        plt.hist([all, only_TRUE, only_FALSE], bins=num_bins, label=['all', "On_target = TRUE", "On_target = FALSE"], color = ["blue","green","red"])
+        plt.legend(loc='upper right')
+        #plt.xlim((0, 1))
+        plt.xlabel('Antigen_Length')
+        plt.show()
+
 
 
 if __name__ == '__main__':
