@@ -9,4 +9,7 @@ data/model_cif
 
 *.tar
 *.out
-DS_Store
+
+# mac related files
+results/.DS_Store
+analysis/.DS_Store
