@@ -9,3 +9,4 @@ data/model_cif
 
 *.tar
 *.out
+DS_Store
