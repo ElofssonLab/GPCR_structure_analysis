@@ -28,7 +28,7 @@ to ensure that we have a unique uniprot id in every row. We store the resulting 
 5) For the final analysis and for producing figures we only use entries with a normalized_alignment_score greater or equal to 0.90 (note that a score of 1 means a perfect match)
 
 
-# DSSP
+### DSSP
 + we choose accessible surface area (ASA) values according to Sander and Rost, 1994, https://doi.org/10.1002/prot.340200303
 + see also https://biopython.org/docs/1.75/api/Bio.PDB.DSSP.html
 + for installation of dssp see: https://ssbio.readthedocs.io/en/latest/instructions/dssp.html 
