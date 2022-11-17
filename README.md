@@ -2,8 +2,7 @@
 
 This directory contains the data and scripts used for the structural analysis in the context of *publication*.
 
-## METHODS
-
+## METHODS AND MATERIALS
 
 1) The raw input data is stored under *data/221107_raw_data.csv*. We replace the entry 
 ```
@@ -30,8 +29,9 @@ to ensure that we have a unique uniprot id in every row. We store the resulting 
 
 
 # DSSP
++ we choose accessible surface area (ASA) values according to Sander and Rost, 1994, https://doi.org/10.1002/prot.340200303
 + see also https://biopython.org/docs/1.75/api/Bio.PDB.DSSP.html
-+ we choose accessible surface area (ASA) values according to Wilke; Tien et al. 2013 https://doi.org/10.1371/journal.pone.0080635
++ for installation of dssp see: https://ssbio.readthedocs.io/en/latest/instructions/dssp.html 
 
 | 8-letter character | 3-state character | Structure                    |
 |--------------------|-------------------|------------------------------|
@@ -44,16 +44,8 @@ to ensure that we have a unique uniprot id in every row. We store the resulting 
 | S                  | C                 | Bend                         |
 | -                  | C                 | None                         |
 
-## CMDs
 
-create list of all uniprot_ids: ```cat data.csv | cut -d ',' -f4 | sed '1d' | sed 's/;/\n/g' | sort | uniq > uniprot_ids.txt```
+[comment]: # '## CMDs'
 
-
-# Notes
-
-See below link for installation of dssp:
-https://ssbio.readthedocs.io/en/latest/instructions/dssp.html 
-
-
-
+[comment]: # 'create list of all uniprot_ids: ```cat data.csv | cut -d ',' -f4 | sed '1d' | sed 's/;/\n/g' | sort | uniq > uniprot_ids.txt```'
 
