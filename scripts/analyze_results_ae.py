@@ -72,16 +72,16 @@ def main():
     df["normalized_alignment_score"] = df["normalized_alignment_score"].astype(float)
 
     df["average_plDDT_score"] = df["average_plDDT_score"].astype(float)
-    df["average_plDDT_score"] = df["average_plDDT_score"]/100 # normalize values: plDDT scores are between 0-100
+    df["<plDDT>"] = df["average_plDDT_score"]/100 # normalize values: plDDT scores are between 0-100
 
-    df["plDDT_below_50"] = df["plDDT_below_50"].astype(float)
+    df["Fraction disorder"] = df["plDDT_below_50"].astype(float)
+    
 
-
-    df["average_relative_ASA"] = df["average_relative_ASA"].astype(float)
-    df["relative_ASA_below_025"] = df["relative_ASA_below_025"].astype(float)
-    df["relative_H-dssp"] = df["relative_H-dssp"].astype(float)
-    df["relative_E-dssp"] = df["relative_E-dssp"].astype(float)
-    df["relative_C-dssp"] = df["relative_C-dssp"].astype(float)
+    df["<SASA>"] = df["average_relative_ASA"].astype(float)
+    df["Fraction Exposed"] = 1-df["relative_ASA_below_025"].astype(float)
+    df["Fraction Helix"] = df["relative_H-dssp"].astype(float)
+    df["Fraction Sheet"] = df["relative_E-dssp"].astype(float)
+    df["Fraction Coil"] = df["relative_C-dssp"].astype(float)
 
 
     logfile = outpath + "/info.md"
@@ -101,25 +101,32 @@ def main():
 
 
     value_columns = [ \
-       'average_plDDT_score', 'plDDT_below_50',  \
-       'average_relative_ASA', 'relative_ASA_below_025', 'relative_H-dssp', \
-       'relative_E-dssp', 'relative_C-dssp']
+       '<plDDT>', 'Fraction disorder',  \
+       '<SASA>', 'Fraction Exposed', 'Fraction Helix', \
+       'Fraction Sheet', 'Fraction Coil']
 
     # disorderd score 
     #plt.style.use('seaborn-deep')
 
-
+    print (df.columns)
     for value in value_columns:
-        print ("T-test on-off: ",value,stats.ttest_ind(df[ df.On_target=="TRUE"].loc[:,[value]],df[(df.On_target=="TRUE") &  (df.Off_target=="FALSE")].loc[:,[value]]))
-        print ("T-test on-no: ",value,stats.ttest_ind(df[(df.On_target=="TRUE") &  (df.Off_target=="FALSE")].loc[:,[value]],df[(df.On_target=="FALSE") & (df.Off_target=="FALSE") ].loc[:,[value]]))
-        print ("T-test on- the rest: ",value,stats.ttest_ind(df[(df.On_target=="TRUE") &  (df.Off_target=="FALSE")].loc[:,[value]],df[(df.On_target=="FALSE") |  (df.Off_target=="TRUE")].loc[:,[value]]))
+
+        #df_specific=df[ df.On_target=="TRUE"]
+        df_on=df[(df.On_target=="TRUE") &  (df.Off_target=="FALSE")]
+        df_off=df[ df.Off_target=="TRUE"]
+        df_no=df[(df.On_target=="FALSE") & (df.Off_target=="FALSE")]
+        df_rest=df[(df.On_target=="FALSE") |  (df.Off_target=="TRUE")]
+        
+        print ("T-test on-off:\t ",value,stats.ttest_ind(df_on[value],df_off[value]),mean(df_on[value]),mean(df_off[value]))
+        print ("T-test on-no:\t ",value,stats.ttest_ind(df_on[value],df_no[value]),mean(df_on[value]),mean(df_no[value]))
+        print ("T-test on-rest:\t ",value,stats.ttest_ind(df_on[value],df_rest[value]),mean(df_on[value]),mean(df_rest[value]))
 
         #for type in ["Specific", "On_target", "Off_target"]:
-        #ax = df.loc[:,[value]].plot(kind="density", color="blue")
-        ax=df[(df.On_target=="TRUE") &  (df.Off_target=="FALSE")].loc[:,[value]].plot(kind="density", color="green",legend="on_target")
-        df[ df.Off_target=="TRUE"].loc[:,[value]].plot(kind="density", ax = ax, color="red",label="off_target")
-        df[(df.On_target=="FALSE") & (df.Off_target=="FALSE")].loc[:,[value]].plot(kind="density", ax = ax, color="blue",label="no_target")
-        #df[df[type] == "FALSE"].loc[:,[value]].plot(kind="density", ax = ax, color="red")
+        #ax = df[value].plot(kind="density", color="blue")
+        ax=df_on[value].plot(kind="density", color="green",label="on_target")
+        df_off[value].plot(kind="density", ax = ax, color="red",label="off_target")
+        df_no[value].plot(kind="density", ax = ax, color="blue",label="no_target")
+        #df[df[type] == "FALSE"][value].plot(kind="density", ax = ax, color="red")
         #ax.set_title("TRUE/FALSE: {}/{}".format(df[df[type] == "TRUE"].shape[0], df[df[type] == "FALSE"].shape[0]))
         ax.set_title(value)
         #ax.text(0.8,0.80, "FALSE: {}".format(df[df[type] == "FALSE"].shape[0]))
@@ -129,7 +136,7 @@ def main():
         #ax.legend()
         ax.legend(["On target","Off target","No target"])
         plt.savefig(outpath + "/" + "all" +"_"+value+".pdf")
-
+        plt.close()
 
 
     """
