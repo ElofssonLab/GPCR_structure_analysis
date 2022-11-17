@@ -47,5 +47,5 @@ to ensure that we have a unique uniprot id in every row. We store the resulting 
 
 [comment]: # '## CMDs'
 
-[comment]: # 'create list of all uniprot_ids: ```cat data.csv | cut -d ',' -f4 | sed '1d' | sed 's/;/\n/g' | sort | uniq > uniprot_ids.txt```'
+[comment]: # " create list of all uniprot_ids: ```cat data.csv | cut -d ',' -f4 | sed '1d' | sed 's/;/\n/g' | sort | uniq > uniprot_ids.txt``` "
 
