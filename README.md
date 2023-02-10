@@ -1,5 +1,8 @@
 # GPCR structure analysis
 
+[![DOI](https://zenodo.org/badge/564756225.svg)](https://zenodo.org/badge/latestdoi/564756225)
+
+
 This directory contains the data and scripts used for the structural analysis in the context of the paper *Multiplexed selectivity screening of anti-GPCR antibodies*.
 
 ## METHODS AND MATERIALS
